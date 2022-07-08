@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:developer';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('Startup Name Generator'), actions: [
           IconButton(
-            icon: const Icon(Icons.camera),
+            icon: const Icon(Icons.camera_alt_rounded),
             tooltip: 'Camera Permission',
             onPressed: () {
               cameraPermission();
@@ -68,5 +70,14 @@ class _RandomWordsState extends State<RandomWords> {
 }
 
 cameraPermission() async {
-  await Permission.camera.request();
+  var cameraStatus = await Permission.camera.status;
+  print(cameraStatus);
+
+  if (!cameraStatus.isGranted) await Permission.camera.request();
+
+  if (await Permission.camera.isGranted) {
+    log("Camera permission granted");
+  } else {
+    log("Provide Camera permission to use camera.");
+  }
 }
