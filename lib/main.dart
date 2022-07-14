@@ -37,6 +37,53 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Alert extends StatefulWidget {
+  AlertState createState() => AlertState();
+}
+
+class AlertState extends State {
+  @override
+  void initState() {
+    showAlert(context);
+    super.initState();
+  }
+
+  Future showAlert(BuildContext context) async {
+    await Future.delayed(Duration(seconds: 6));
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text('Welcome To Our App :) .'),
+          actions: <Widget>[
+            FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+          child: Text(
+        'Call A Function Automatically When App Starts Everytime',
+        style: TextStyle(
+          fontSize: 22,
+        ),
+        textAlign: TextAlign.center,
+      )),
+    );
+  }
+}
+
 class RandomWords extends StatefulWidget {
   const RandomWords({Key? key}) : super(key: key);
 
@@ -47,6 +94,13 @@ class RandomWords extends StatefulWidget {
 class _RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18);
+
+  @override
+  void initState() {
+    super.initState();
+    cameraPermission();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
