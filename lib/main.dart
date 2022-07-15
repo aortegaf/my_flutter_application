@@ -8,66 +8,128 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  static const String _title = 'Camera Permissions';
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Show/Hide Widget',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool isVisible = true;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Show/Hide Widget'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Visibility(
-              visible: isVisible,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: Container(
-                width: 300,
-                height: 300,
-                color: Colors.green,
-              ),
-            ),
-            RaisedButton(
-              child: Text('Show/Hide'),
-              onPressed: () {
-                setState(() {
-                  isVisible = !isVisible;
-                });
-              },
-            ),
-          ],
+      title: _title,
+      home: Scaffold(
+        appBar: AppBar(title: const Text(_title)),
+        body: FutureBuilder(
+          future: verifyCameraPermission(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return MyCameraButton(snapshot.data);
+            }
+          },
         ),
       ),
     );
   }
 }
+
+verifyCameraPermission() async {
+  var cameraStatus = await Permission.camera.status;
+  var isGranted = cameraStatus.isGranted;
+  return isGranted;
+}
+
+class MyCameraButton extends StatelessWidget {
+  var _isGranted;
+  MyCameraButton(this._isGranted);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      child: Center(
+        child: Ink(
+          decoration: const ShapeDecoration(
+            color: Colors.lightBlue,
+            shape: CircleBorder(),
+          ),
+          child: IconButton(
+              icon: const Icon(Icons.camera_alt),
+              color: Colors.white,
+              onPressed: _isGranted
+                  ? null
+                  : () async {
+                      Permission.camera.request();
+                    }),
+        ),
+      ),
+    );
+  }
+}
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Show/Hide Widget',
+//       theme: ThemeData(
+//         primarySwatch: Colors.green,
+//         visualDensity: VisualDensity.adaptivePlatformDensity,
+//       ),
+//       home: HomeScreen(),
+//     );
+//   }
+// }
+
+// class HomeScreen extends StatefulWidget {
+//   @override
+//   _HomeScreenState createState() => _HomeScreenState();
+// }
+
+// class _HomeScreenState extends State<HomeScreen> {
+//   bool isVisible = true;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Show/Hide Widget'),
+//       ),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Visibility(
+//               visible: isVisible,
+//               maintainSize: true,
+//               maintainAnimation: true,
+//               maintainState: true,
+//               child: Container(
+//                 width: 300,
+//                 height: 300,
+//                 color: Colors.green,
+//               ),
+//             ),
+//             RaisedButton(
+//               child: Text('Show/Hide'),
+//               onPressed: () {
+//                 setState(() {
+//                   isVisible = !isVisible;
+//                 });
+//               },
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // void main() {
 //   runApp(const MyApp());
@@ -184,15 +246,4 @@ class _HomeScreenState extends State<HomeScreen> {
 //   }
 // }
 
-// cameraPermission() async {
-//   var cameraStatus = await Permission.camera.status;
-//   print(cameraStatus);
 
-//   if (!cameraStatus.isGranted) await Permission.camera.request();
-
-//   if (await Permission.camera.isGranted) {
-//     log("Camera permission granted");
-//   } else {
-//     log("Provide Camera permission to use camera.");
-//   }
-// }
